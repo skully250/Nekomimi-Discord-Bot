@@ -73,8 +73,17 @@ namespace Nekomaid_Club_Bot
 
         public static void messageHandler(object sender, MessageEventArgs e)
         {
-            if (e.Message.Text.Split(' ')[0] == "pet")
-                e.Channel.SendMessage("*pets " + e.Message.Text.Split(' ')[1] + "*");
+            string[] messageArray = e.Message.Text.Split(' ');
+            if (messageArray[0] == "pet")
+                if (messageArray.Length >= 2)
+                    if (messageArray[1] != "me") {
+                        string message = messageArray[1];
+                        for (int i = 2; i < messageArray.Length; i++)
+                        {
+                            message += " " + messageArray[i];
+                        }
+                            e.Channel.SendMessage("*pets " + message + "*");
+                    }
             switch(e.Message.Text)
             {
                 case "(╯°□°）╯︵ ┻━┻":
