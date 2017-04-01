@@ -7,6 +7,11 @@ using System.Net.Http;
 
 using Discord;
 using Discord.Commands;
+using Discord.Audio;
+
+using NAudio;
+using NAudio.Wave;
+using NAudio.CoreAudioApi;
 
 namespace Nekomaid_Club_Bot
 {
@@ -16,6 +21,28 @@ namespace Nekomaid_Club_Bot
         public Nekomimi()
         {
             Start();
+        }
+
+        public static void sendPet(MessageEventArgs e, string[] messageArray)
+        {
+            string message = messageArray[1];
+            if (messageArray[1] == "lyna")
+                message = "<:lyna:294645917909254144>";
+            if (messageArray.Length > 2)
+            {
+                for (int i = 2; i < messageArray.Length; i++)
+                {
+                    message += " " + messageArray[i];
+                }
+            }
+            try
+            {
+                e.Channel.SendMessage("*pets " + message + "*");
+            } catch (Exception exception)
+            {
+                Console.Write(exception.Message);
+                e.Channel.SendMessage("Why would you do that? you mean human being");
+            }
         }
 
         public static void Start()
@@ -30,6 +57,11 @@ namespace Nekomaid_Club_Bot
             {
                 x.PrefixChar = '!';
                 x.HelpMode = HelpMode.Public;
+            });
+
+            _client.UsingAudio(x =>
+            {
+                x.Mode = AudioMode.Outgoing;
             });
 
             CommandService comserv = _client.GetService<CommandService>();
@@ -56,11 +88,28 @@ namespace Nekomaid_Club_Bot
                 await e.Channel.SendMessage(image.getRandomNeko());
             });
 
+            string[] foxes = {
+                "http://i.imgur.com/1VkY1R4.jpg", "http://i.imgur.com/g77dAsa.gif", "http://i.imgur.com/6Xt3mQo.jpg", "http://i.imgur.com/Tm05gsh.jpg",
+                "http://i.imgur.com/9FzD5TA.gif", "http://i.imgur.com/A1dAUP1.jpg", "http://i.imgur.com/qACO45t.jpg", "http://i.imgur.com/jqoH6tT.jpg",
+                "http://i.imgur.com/JmAUuGe.jpg"};
+            comserv.CreateCommand("fox").Do(async (e) =>
+            {
+                int index = new Random().Next(0, foxes.Length);
+                await e.Channel.SendMessage(foxes[index]);
+            });
+
             comserv.CreateCommand("ohayou")
                 .Alias("おはよう")
                 .Do(async (e) =>
             {
                 await e.Channel.SendMessage("http://i.imgur.com/Hbl7w2T.gif");
+            });
+
+            comserv.CreateCommand("bakanano")
+                .Alias("バカなの")
+                .Do(async (e) =>
+            {
+                await e.Channel.SendMessage("http://i2.kym-cdn.com/photos/images/newsfeed/001/095/334/4f9.gif");
             });
 
             _client.MessageReceived += messageHandler;
@@ -76,21 +125,28 @@ namespace Nekomaid_Club_Bot
             string[] messageArray = e.Message.Text.Split(' ');
             if (messageArray[0] == "pet")
             {
-                if (messageArray.Length >= 2)
+                if (messageArray.Length == 2)
                 {
-                    if (messageArray[1] != "me")
+                    if (messageArray[1] == "me")
                     {
-                        string message = messageArray[1];
-                        for (int i = 2; i < messageArray.Length; i++)
-                        {
-                            message += " " + messageArray[i];
-                        }
-                        e.Channel.SendMessage("*pets " + message + "*");
+
+                    }
+                    else
+                    {
+                        sendPet(e, messageArray);
                     }
                 }
+                else if (messageArray.Length > 2)
+                {
+                    sendPet(e, messageArray);
+                }
             }
+
             switch(e.Message.Text)
             {
+                case "world":
+                    e.Channel.SendMessage("What are we gonna do DJeeta?");
+                    break;
                 case "(╯°□°）╯︵ ┻━┻":
                     e.Channel.SendMessage("┬─┬﻿ ノ( ゜-゜ノ)");
                     break;

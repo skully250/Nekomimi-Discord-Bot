@@ -36,7 +36,7 @@ namespace Nekomaid_Club_Bot
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Failed to get cat image");
+                    Console.WriteLine("Failed to get cat image - " + ex.Message);
                 }
             }
 
