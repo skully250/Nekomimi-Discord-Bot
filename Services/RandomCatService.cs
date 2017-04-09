@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
-namespace Nekomaid_Club_Bot
+namespace Nekomaid_Club_Bot.Services
 {
     class CatImage
     {
@@ -19,7 +20,7 @@ namespace Nekomaid_Club_Bot
         public string Url { get; private set; }
     }
 
-    public class RandomCat
+    public class RandomCatService
     {
         private const string NekoUrl = "http://random.cat/meow";
 
@@ -40,7 +41,7 @@ namespace Nekomaid_Club_Bot
                 }
             }
 
-                return randomneko.Url;
+            return randomneko.Url;
         }
     }
 }
