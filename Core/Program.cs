@@ -37,8 +37,8 @@ namespace Nekomaid_Club_Bot.Core
             var map = new DependencyMap();
             map.Add(client);
 
-            handler = new CommandHandler();
-            await handler.Install(map);
+            handler = new CommandHandler(map);
+            await handler.Install();
 
             await Task.Delay(-1);
         }

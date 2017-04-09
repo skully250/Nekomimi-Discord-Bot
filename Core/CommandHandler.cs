@@ -10,6 +10,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 
 using Nekomaid_Club_Bot.Services;
+using Nekomaid_Club_Bot.Modules.Public;
 
 namespace Nekomaid_Club_Bot.Core
 {
@@ -18,20 +19,22 @@ namespace Nekomaid_Club_Bot.Core
         private CommandService comserv;
         private RandomCatService catserv;
         private SearchService searchserv;
+        private UserService userserv;
 
         private DiscordSocketClient client;
         private CommandHandler handler => this;
         private IDependencyMap map;
 
-        public static Dictionary<ulong, string> prefixDict = new Dictionary<ulong, string>();
+        public static Dictionary<ulong, Dictionary<ulong, string>> userDict = new Dictionary<ulong, Dictionary<ulong, string>>();
         private JsonSerializer json = new JsonSerializer();
 
-        public async Task Install(IDependencyMap _map)
+        public CommandHandler(IDependencyMap _map)
         {
             client = _map.Get<DiscordSocketClient>();
             comserv = new CommandService();
             catserv = new RandomCatService();
             searchserv = new SearchService();
+            userserv = new UserService(userDict);
 
             _map.Add(handler);
             _map.Add(catserv);
@@ -39,10 +42,14 @@ namespace Nekomaid_Club_Bot.Core
             //_map.Add(comserv);
             map = _map;
 
-            await comserv.AddModulesAsync(Assembly.GetEntryAssembly());
-            Console.WriteLine("All Command modules loaded");
-
             client.MessageReceived += handleCommand;
+        }
+
+        public async Task Install()
+        {
+            await comserv.AddModuleAsync<InfoModule>();
+            await comserv.AddModuleAsync<GoldModule>();
+            await comserv.AddModulesAsync(Assembly.GetEntryAssembly());
         }
 
         public async Task handleCommand(SocketMessage msg)
@@ -52,12 +59,8 @@ namespace Nekomaid_Club_Bot.Core
 
             var context = new CommandContext(client, message);
 
-            string prefix;
-            if (prefixDict.TryGetValue(context.Guild.Id, out prefix)) Console.WriteLine("Prefix is " + prefix);
-            else prefix = "!";
-
             int argpos = 0;
-            if (!(message.HasMentionPrefix(client.CurrentUser, ref argpos) || message.HasStringPrefix(prefix, ref argpos))) return;
+            if (!(message.HasMentionPrefix(client.CurrentUser, ref argpos) || message.HasCharPrefix('!', ref argpos))) return;
 
             var result = await comserv.ExecuteAsync(context, argpos, map);
 

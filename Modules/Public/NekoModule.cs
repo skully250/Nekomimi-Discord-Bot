@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
+using System.Net.Http;
 
 using Discord;
 using Discord.Commands;
@@ -24,16 +24,16 @@ namespace Nekomaid_Club_Bot.Modules.Public
             _searchserv = searchserv;
         }
 
+        [Command("how are you")]
+        public async Task how()
+        {
+            await ReplyAsync("Im doing very good, thank you!");
+        }
+
         [Command("search")]
         public async Task nsfw(string tag, string website)
         {
             await _searchserv.sendPic(Context.Message, tag, website);
-        }
-
-        [Command("ping"), Summary("Ping the bot")]
-        public async Task Pong()
-        {
-            await ReplyAsync("pong");
         }
 
         [Command("pet"), Summary("Pet a user or yourself")]
@@ -47,7 +47,7 @@ namespace Nekomaid_Club_Bot.Modules.Public
                     await ReplyAsync($"*pets {Context.Message.Author.Username}*");
             }
             else if (user == "enka" || user == "kivei")
-                await ReplyAsync($"*pets kiveis fluffy tail");
+                await ReplyAsync($"*pets kiveis fluffy tail*");
             else
                 await ReplyAsync($"*pets {user}*");
         }
@@ -76,60 +76,13 @@ namespace Nekomaid_Club_Bot.Modules.Public
             await ReplyAsync(_catserv.getRandomNeko());
         }
 
-        [Command("whois")]
-        public async Task whois([Remainder] IUser user = null)
+        [Command("Dog")]
+        public async Task dog()
         {
-            var userinfo = user ?? Context.Client.CurrentUser;
-
-            var eb = new EmbedBuilder()
+            using (var http = new HttpClient())
             {
-                Color = new Color(4, 97, 247),
-                ThumbnailUrl = userinfo.GetAvatarUrl()
-            };
-
-            eb.AddField((efb) =>
-            {
-                efb.Name = "User";
-                efb.IsInline = true;
-                efb.Value = $"Name + Discriminator: {userinfo.Username}#{userinfo.Discriminator} \n" +
-                            $"Created at: {userinfo.CreatedAt} \n" +
-                            $"Status: {userinfo.Status}";
-            });
-
-            await Context.Channel.SendMessageAsync("", false, eb);
+                await ReplyAsync("http://random.dog/" + await http.GetStringAsync("http://random.dog/woof").ConfigureAwait(false)).ConfigureAwait(false);
+            }
         }
-
-        [Command("info")]
-        public async Task Info()
-        {
-            var eb = new EmbedBuilder()
-            {
-                Color = new Color(4, 97, 247),
-                ThumbnailUrl = Context.Guild.IconUrl
-            };
-            eb.AddField((efb) =>
-            {
-                efb.Name = "Info";
-                efb.IsInline = true;
-                efb.Value = $"- Library: Discord.Net ({DiscordConfig.Version})\n" +
-                            $"- Uptime: {GetUptime()}\n";
-            });
-
-            eb.AddField((efb) =>
-            {
-                efb.Name = "Stats";
-                efb.IsInline = false;
-                efb.Value = $"- Heap Size: {GetHeapSize()} MB\n" +
-                            $"- Guilds: {(Context.Client as DiscordSocketClient).Guilds.Count}\n" +
-                            $"- Channels: {(Context.Client as DiscordSocketClient).Guilds.Sum(g => g.Channels.Count)}" +
-                            $"- Users: {(Context.Client as DiscordSocketClient).Guilds.Sum(g => g.Users.Count)}";
-            });
-
-            await Context.Channel.SendMessageAsync("", false, eb);
-        }
-
-        private static string GetUptime()
-            => (DateTime.Now - Process.GetCurrentProcess().StartTime).ToString(@"dd\.hh\:mm\:ss");
-        private static string GetHeapSize() => Math.Round(GC.GetTotalMemory(true) / (1024.0 * 1024.0), 2).ToString();
     }
 }
