@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Nekomaid_Club_Bot.Services
+namespace Nekomimi_Rewrite.Services
 {
     class CatImage
     {
@@ -21,28 +20,28 @@ namespace Nekomaid_Club_Bot.Services
         public string Url { get; private set; }
     }
 
-    public class RandomCatService
+    public class CatService
     {
-        private const string NekoUrl = "http://random.cat/meow";
+        private const string nekoURL = "http://random.cat/meow";
 
         public string getRandomNeko()
         {
-            CatImage randomneko = null;
+            CatImage neko = null;
 
-            using (WebClient webclient = new WebClient())
+            using (HttpClient client = new HttpClient())
             {
                 try
                 {
-                    string json = webclient.DownloadString(NekoUrl);
-                    randomneko = JsonConvert.DeserializeObject<CatImage>(json);
-                }
-                catch (Exception ex)
+                    HttpResponseMessage response = client.GetAsync(nekoURL).Result;
+                    var json = response.Content.ReadAsStringAsync().Result;
+                    neko = JsonConvert.DeserializeObject<CatImage>(json);
+                } catch(Exception ex)
                 {
                     Console.WriteLine("Failed to get cat image - " + ex.Message);
                 }
             }
 
-            return randomneko.Url;
+            return neko.Url;
         }
     }
 }

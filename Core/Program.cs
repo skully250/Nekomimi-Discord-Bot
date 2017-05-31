@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using Discord;
@@ -10,11 +7,11 @@ using Discord.WebSocket;
 using Discord.Net.Providers.WS4Net;
 using Discord.Net.Providers.UDPClient;
 
-namespace Nekomaid_Club_Bot.Core
+namespace Nekomimi_Rewrite.Core
 {
     class Program
     {
-        public static void Main(String[] args) => new Program().Start().GetAwaiter().GetResult();
+        static void Main(string[] args) => new Program().Start().GetAwaiter().GetResult();
 
         private DiscordSocketClient client;
         private CommandHandler handler;
@@ -24,12 +21,12 @@ namespace Nekomaid_Club_Bot.Core
             client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 WebSocketProvider = WS4NetProvider.Instance,
-                UdpSocketProvider = UDPClientProvider.Instance,
+                //UdpSocketProvider = UDPClientProvider.Instance,
             });
 
             client.Log += Log;
 
-            
+
 
             await client.LoginAsync(TokenType.Bot, token);
             await client.StartAsync();

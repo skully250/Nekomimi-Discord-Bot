@@ -1,45 +1,51 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
-using System.Reflection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 using Discord.Commands;
 using Discord.WebSocket;
+using System.Reflection;
 
-using Nekomaid_Club_Bot.Services;
-using Nekomaid_Club_Bot.Modules.Public;
+using Nekomimi_Rewrite.Services;
 
-namespace Nekomaid_Club_Bot.Core
+namespace Nekomimi_Rewrite.Core
 {
-    public class CommandHandler
+    class CommandHandler
     {
         private CommandService comserv;
-        private RandomCatService catserv;
-        private SearchService searchserv;
-        private UserService userserv;
+        private CatService catserv;
+        private LewdService lewdserv;
+        private AudioService audioserv;
+        private GoldService goldserv;
+        private TagService tagserv;
 
         private DiscordSocketClient client;
-        private CommandHandler handler => this;
         private IDependencyMap map;
 
-        public static Dictionary<ulong, Dictionary<ulong, string>> userDict = new Dictionary<ulong, Dictionary<ulong, string>>();
-        private JsonSerializer json = new JsonSerializer();
+        private CommandHandler handler => this;
 
         public CommandHandler(IDependencyMap _map)
         {
             client = _map.Get<DiscordSocketClient>();
+
             comserv = new CommandService();
-            catserv = new RandomCatService();
-            searchserv = new SearchService();
-            userserv = new UserService(userDict);
+
+            catserv = new CatService();
+            lewdserv = new LewdService();
+            audioserv = new AudioService();
+            goldserv = new GoldService();
+            tagserv = new TagService();
+
+
+            _map.Add(catserv);
+            _map.Add(lewdserv);
+            _map.Add(audioserv);
+            _map.Add(goldserv);
+            _map.Add(tagserv);
 
             _map.Add(handler);
-            _map.Add(catserv);
-            _map.Add(searchserv);
-            //_map.Add(comserv);
+
             map = _map;
 
             client.MessageReceived += handleCommand;
@@ -47,8 +53,7 @@ namespace Nekomaid_Club_Bot.Core
 
         public async Task Install()
         {
-            await comserv.AddModuleAsync<InfoModule>();
-            await comserv.AddModuleAsync<GoldModule>();
+            //await comserv.AddModuleAsync<AdminModule>();
             await comserv.AddModulesAsync(Assembly.GetEntryAssembly());
         }
 

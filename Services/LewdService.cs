@@ -1,17 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using System.Xml;
+using System.Text.RegularExpressions;
 
 using Discord;
 using Discord.Commands;
 
-namespace Nekomaid_Club_Bot.Services
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+namespace Nekomimi_Rewrite.Services
 {
-    public class SearchService
+    public class LewdService
     {
         public async Task sendPic(IUserMessage umsg, string tag, string website)
         {
@@ -19,12 +24,15 @@ namespace Nekomaid_Club_Bot.Services
 
             tag = tag ?.Trim() ?? "";
 
-            var url = await pageSearch(tag, website).ConfigureAwait(false);
+            String url;
+            
+            url = await pageSearch(tag, website).ConfigureAwait(false);
 
             if (url == null)
             {
                 await channel.SendMessageAsync("There were no results; Make sure you're searching either - safebooru, gelbooru, rule34, konachan, yandere");
-            } else
+            }
+            else
             {
                 await channel.SendMessageAsync(url);
             }
@@ -34,7 +42,7 @@ namespace Nekomaid_Club_Bot.Services
         {
             tag = tag?.Replace(" ", "_");
             var lewdweb = "";
-            switch (website)
+            switch (website.ToLower())
             {
                 case "safebooru":
                     lewdweb = $"https://safebooru.org/index.php?page=dapi&s=post&q=index&limit=100&tags={tag}";
@@ -52,6 +60,7 @@ namespace Nekomaid_Club_Bot.Services
                     lewdweb = $"https://yande.re/post.xml?limit=100&tags={tag}";
                     break;
             }
+
             try
             {
                 var toReturn = await Task.Run(async () =>
@@ -71,8 +80,9 @@ namespace Nekomaid_Club_Bot.Services
                     }
                 }).ConfigureAwait(false);
                 return toReturn;
-            } catch
-            {
+            } catch (Exception ex)
+            { 
+                Console.WriteLine("Error: " + ex.Message);
                 return null;
             }
         }

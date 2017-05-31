@@ -1,23 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Nekomaid_Club_Bot.Util;
-
-using Discord;
-using Discord.Commands;
 using Discord.WebSocket;
+using Discord.Commands;
 
-namespace Nekomaid_Club_Bot.Modules.Public
+using Nekomimi_Rewrite.Services;
+
+namespace Nekomimi_Rewrite.Modules.Public
 {
-    class GoldModule : ModuleBase
+    public class GoldModule : ModuleBase<CommandContext>
     {
-        [Command("gold")]
-        public async Task myGold() => await Gold.checkGoldAsync(Context, Context.User as SocketGuildUser);
+        GoldService _goldserv;
 
-        [Command("addGold")]
-        public async Task addGold(SocketGuildUser user) => await Gold.AddGoldAsync(Context, user);
+        public GoldModule(GoldService goldserv)
+        {
+            _goldserv = goldserv;
+        }
+
+        [Command("gold")]
+        public async Task myGold() => await _goldserv.checkGoldAsync(Context, Context.User as SocketGuildUser);
+
+        [Command("addGold", RunMode = RunMode.Async)]
+        public async Task addGold(SocketGuildUser user) => await _goldserv.AddGoldAsync(Context, user);
+
+        [Command("giveGold", RunMode = RunMode.Async)]
+        public async Task giveGold(SocketGuildUser user)
+        {
+            if (_goldserv.checkGold(Context.User as SocketGuildUser) != 0)
+            {
+                await _goldserv.AddGoldAsync(Context, user);
+                await _goldserv.removeGoldAsync(Context, Context.Message.Author as SocketGuildUser);
+            }
+        }
     }
 }
