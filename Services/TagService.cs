@@ -17,16 +17,16 @@ namespace Nekomimi_Rewrite.Services
         public ConcurrentDictionary<string, string> tags { get; set; }
     }
 
-    class TagService
+    public class TagService
     {
-        CommandContext _context;
         string tags;
         List<UserTags> json;
         
-        public TagService(CommandContext context)
+        public TagService()
         {
-            _context = context;
             loadTags();
+            tags = File.ReadAllText("tags.json");
+            json = JsonConvert.DeserializeObject<List<UserTags>>(tags);
         }
 
         public void loadTags()
@@ -43,61 +43,77 @@ namespace Nekomimi_Rewrite.Services
                 return;
         }
 
-        public async Task FindTag(SocketGuildUser user, string tagName)
+        public void saveTags()
+        {
+            var _json = JsonConvert.SerializeObject(json);
+            File.WriteAllText("tags.json", _json);
+        }
+
+        public async Task FindTag(CommandContext context, SocketGuildUser user, string tagName)
         {
             try
             {
                 string tagContent;
                 if (json.First(x => x.id == user.Id).tags.TryGetValue(tagName, out tagContent))
-                    await _context.Channel.SendMessageAsync(tagContent);
+                    await context.Channel.SendMessageAsync(tagContent);
                 else
-                    await _context.Channel.SendMessageAsync($"The content for {tagName} could not be found or doesnt exist");
+                    await context.Channel.SendMessageAsync($"The content for {tagName} could not be found or doesnt exist");
+                saveTags();
             } catch (Exception e)
             {
-                await _context.Channel.SendMessageAsync(e.Message);
+                await context.Channel.SendMessageAsync(e.Message);
             }
         }
         
-        public async Task CreateTag(SocketGuildUser user, string tagName, string tagContent)
+        public async Task CreateTag(CommandContext context, SocketGuildUser user, string tagName, string tagContent)
         {
             try
             {
-                if (json.First(x => x.id == user.Id).tags.TryAdd(tagName, tagContent))
-                    await _context.Channel.SendMessageAsync($"Tag {tagName} has been added");
+                if (!json.Any(x => x.id == user.Id))
+                {
+                    var tagAdd = new ConcurrentDictionary<string, string>();
+                    tagAdd.TryAdd(tagName, tagContent);
+                    json.Add(new UserTags() { id = user.Id, tags = tagAdd });
+                }
                 else
-                    await _context.Channel.SendMessageAsync($"Tag {tagName} was not successfully added");
+                {
+                    json.First(x => x.id == user.Id).tags.TryAdd(tagName, tagContent);
+                }
+                await context.Channel.SendMessageAsync($"Tag {tagName} has been added");
+                saveTags();
             } catch (Exception e)
             {
-                await _context.Channel.SendMessageAsync(e.Message);
+                await context.Channel.SendMessageAsync(e.Message);
             }
         }
 
-        public async Task ModifyTag(SocketGuildUser user)
+        public async Task ModifyTag(CommandContext context, SocketGuildUser user)
         {
             try
             {
                 //TODO: Work out an efficient way to modify tags
             } catch (Exception e)
             {
-                await _context.Channel.SendMessageAsync(e.Message);
+                await context.Channel.SendMessageAsync(e.Message);
             }
         }
 
-        public async Task RemoveTag(SocketGuildUser user, string tagName)
+        public async Task RemoveTag(CommandContext context, SocketGuildUser user, string tagName)
         {
             try
             {
                 string tagContent;
                 if (json.First(x => x.id == user.Id).tags.TryRemove(tagName, out tagContent))
                 {
-                    await _context.Channel.SendMessageAsync($"Tag {tagName} was successfully removed");
+                    await context.Channel.SendMessageAsync($"Tag {tagName} was successfully removed");
                 } else
                 {
-                    await _context.Channel.SendMessageAsync($"Tag {tagName} was not removed or doesnt exist");
+                    await context.Channel.SendMessageAsync($"Tag {tagName} was not removed or doesnt exist");
                 }
+                saveTags();
             } catch (Exception e)
             {
-                await _context.Channel.SendMessageAsync(e.Message);
+                await context.Channel.SendMessageAsync(e.Message);
             }
         }
 

@@ -18,26 +18,25 @@ namespace Nekomimi_Rewrite.Services
 
     public class GoldService
     {
-        CommandContext _context;
         string gold;
         List<UserGold> json;
 
-        public GoldService(CommandContext context)
+        public GoldService()
         {
-            _context = context;
             loadGold();
             gold = File.ReadAllText("gold.json");
             json = JsonConvert.DeserializeObject<List<UserGold>>(gold);
         }
+
         public void loadGold()
         {
             var path = "gold.json";
             if (!File.Exists(path))
             {
                 List<UserGold> gold = new List<UserGold>();
-                var json = JsonConvert.SerializeObject(gold);
+                var _json = JsonConvert.SerializeObject(gold);
                 using (var file = new FileStream(path, FileMode.Create)) { }
-                File.WriteAllText(path, json);
+                File.WriteAllText(path, _json);
             }
             else
                 return;
@@ -53,15 +52,15 @@ namespace Nekomimi_Rewrite.Services
             return goldamount;
         }
 
-        public async Task saveData(SocketGuildUser user, List<UserGold> json)
+        public async Task saveData(CommandContext context, SocketGuildUser user, List<UserGold> json)
         {
             var goldam = json.First(x => x.id == user.Id).gold;
-            await _context.Channel.SendMessageAsync($":heavy_dollar_sign: **{user.Username}'s** gold: {goldam}");
+            await context.Channel.SendMessageAsync($":heavy_dollar_sign: **{user.Username}'s** gold: {goldam}");
             var _json = JsonConvert.SerializeObject(json);
             File.WriteAllText("gold.json", _json);
         }
 
-        public async Task checkGoldAsync(SocketGuildUser user)
+        public async Task checkGoldAsync(CommandContext context, SocketGuildUser user)
         {
             try
             {
@@ -69,7 +68,7 @@ namespace Nekomimi_Rewrite.Services
                 {
                     json.Add(new UserGold() { id = user.Id, gold = 0 });
                 }
-                await saveData(user, json);
+                await saveData(context, user, json);
             }
             catch (Exception e)
             {
@@ -77,7 +76,7 @@ namespace Nekomimi_Rewrite.Services
             }
         }
 
-        public async Task removeGoldAsync(SocketGuildUser user)
+        public async Task removeGoldAsync(CommandContext context, SocketGuildUser user)
         {
             try
             {
@@ -89,8 +88,8 @@ namespace Nekomimi_Rewrite.Services
                 {
                     json.First(x => x.id == user.Id).gold--;
                 }
-                await saveData(user, json);
-                await _context.Message.DeleteAsync();
+                await saveData(context, user, json);
+                await context.Message.DeleteAsync();
             }
             catch (Exception e)
             {
@@ -98,7 +97,7 @@ namespace Nekomimi_Rewrite.Services
             }
         }
 
-        public async Task AddGoldAsync(SocketGuildUser user)
+        public async Task AddGoldAsync(CommandContext context, SocketGuildUser user)
         {
             try
             {
@@ -110,8 +109,8 @@ namespace Nekomimi_Rewrite.Services
                 {
                     json.First(x => x.id == user.Id).gold++;
                 }
-                await saveData(user, json);
-                await _context.Message.DeleteAsync();
+                await saveData(context, user, json);
+                await context.Message.DeleteAsync();
             }
             catch (Exception e)
             {
