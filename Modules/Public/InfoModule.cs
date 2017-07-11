@@ -5,11 +5,19 @@ using System.Threading.Tasks;
 
 using Discord;
 using Discord.Commands;
+using Nekomimi_Rewrite.Services;
 
 namespace Nekomimi_Rewrite.Modules.Public
 {
     public class InfoModule : ModuleBase<CommandContext>
     {
+        LewdService _lewdserv;
+
+        public InfoModule(LewdService lewdserv)
+        {
+            _lewdserv = lewdserv;
+        }
+
         [Command("whois")]
         public async Task whois([Remainder] IUser user = null)
         {

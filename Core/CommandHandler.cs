@@ -21,7 +21,7 @@ namespace Nekomimi_Rewrite.Core
         private TagService tagserv;
 
         private DiscordSocketClient client;
-        private IDependencyMap map;
+        /*private IDependencyMap map;
 
         private CommandHandler handler => this;
 
@@ -71,6 +71,6 @@ namespace Nekomimi_Rewrite.Core
 
             if (!result.IsSuccess)
                 await message.Channel.SendMessageAsync($"**Error:** {result.ErrorReason}");
-        }
+        }*/
     }
 }

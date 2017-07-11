@@ -29,12 +29,6 @@ namespace Nekomimi_Rewrite.Modules.Public
             }
         }
 
-        [Command("who is best maid?"), Alias("who is best maid")]
-        public async Task bestMaid()
-        {
-            await ReplyAsync("Saber is best maid uwu");
-        }
-
         [Command("feed me")]
         public async Task feed()
         {

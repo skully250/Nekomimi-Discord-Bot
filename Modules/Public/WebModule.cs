@@ -30,7 +30,7 @@ namespace Nekomimi_Rewrite.Modules.Public
         [Command("search", RunMode = RunMode.Async)]
         public async Task lewd(string tag, string website)
         {
-            if (Context.Channel.Name == "nsfw" || (Context.Channel.Name != "nsfw" && website == "safebooru"))
+            if (Context.Channel.IsNsfw || (!Context.Channel.IsNsfw && website == "safebooru") || Context.Message.Author.Username == "Ceryuia" || Context.Message.Author.Username == "Fae")
                 await lewdserv.sendPic(Context.Message, tag, website);
         }
 
@@ -38,7 +38,7 @@ namespace Nekomimi_Rewrite.Modules.Public
         [Command("hentaibomb", RunMode = RunMode.Async)]
         public async Task bomb(string tag)
         {
-            if (Context.Channel.Name == "nsfw")
+            if (Context.Channel.IsNsfw)
             {
                 await lewdserv.sendPic(Context.Message, tag, "safebooru");
                 await lewdserv.sendPic(Context.Message, tag, "gelbooru");

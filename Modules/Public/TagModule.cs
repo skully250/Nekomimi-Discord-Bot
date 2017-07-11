@@ -20,23 +20,31 @@ namespace Nekomimi_Rewrite.Modules.Public
             _tagserv = service;
         }
 
-        [Command("addTag")]
-        public async Task addTag(string tagName, [Remainder] string tagContent)
-        {
-            await _tagserv.CreateTag(Context, Context.User as SocketGuildUser, tagName, tagContent);
-        }
-
-        [Command("removeTag")]
-        public async Task removeTag(string tagName)
-        {
-            await _tagserv.RemoveTag(Context, Context.User as SocketGuildUser, tagName);
-        }
-
         [Command("tag")]
-        public async Task tag(string tagName)
+        public async Task tagHandle(string action, string tagName = null, [Remainder] string tagContent = null)
         {
-            await _tagserv.FindTag(Context, Context.User as SocketGuildUser, tagName);
-        }
+            SocketGuildUser user = Context.User as SocketGuildUser;
 
+            if (tagName != null)
+            {
+                switch (action)
+                {
+                    case "add":
+                        if (tagContent != null)
+                            await _tagserv.CreateTag(Context, user, tagName, tagContent);
+                        break;
+                    case "modify":
+                        if (tagContent != null)
+                            await _tagserv.ModifyTag(Context, user, tagName, tagContent);
+                        break;
+                    case "remove":
+                        await _tagserv.RemoveTag(Context, user, tagName);
+                        break;
+                }
+            } else
+            {
+                await _tagserv.FindTag(Context, user, action);
+            }
+        }
     }
 }
